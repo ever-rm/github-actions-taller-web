@@ -26,18 +26,24 @@ jobs:
       - name: 3. Instalar Dependencias (npm ci)
         run: npm ci
 
-      - name: 4. Ejecutar Pruebas
+      - name: 4. Ejecutar Pruebas de Endpoints (Jest/Supertest)
         run: npm test
 
-      - name: 5. Build Simulado
+      # Build simulado
+      - name: 5. Ejecutar Build (Simulado)
         run: |
-          echo "Build completo en ${{ matrix.os }} Node ${{ matrix.node-version }}"
+          echo "----------------------------------------------"
+          echo "Simulando build de la API Express..."
+          node -e "console.log('Build OK para', process.platform, 'con Node', process.version)"
+          echo "Build simulado completado."
+          echo "----------------------------------------------"
 
-      - name: 6. Subir Artifact (solo build final)
+      # Subimos SOLO un artifact (ubuntu + Node 20) para usar en el deploy
+      - name: 6. Subir Artifact para Despliegue
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20'
         uses: actions/upload-artifact@v4
         with:
-          name: web-app-package-ubuntu-latest-node-20
+          name: web-app-package
           path: .
 
   deploy_app:
@@ -48,8 +54,17 @@ jobs:
       - name: 1. Descargar Artifact
         uses: actions/download-artifact@v4
         with:
-          name: web-app-package-ubuntu-latest-node-20
+          name: web-app-package
           path: .
 
       - name: 2. Desplegar a Vercel
-        run: npx vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "ERROR: VERCEL_TOKEN está vacío o no está definido."
+            exit 1
+          fi
+
+          echo "Iniciando despliegue a Vercel con artifact prebuild..."
+          npx vercel deploy --prebuilt --token "$VERCEL_TOKEN"
