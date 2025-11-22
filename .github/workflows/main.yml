@@ -29,19 +29,20 @@ jobs:
       - name: 4. Ejecutar Pruebas de Endpoints (Jest/Supertest)
         run: npm test
 
+      # Tarea 11 - build simulado
       - name: 5. Ejecutar Build (Simulado)
         run: |
           echo "----------------------------------------------"
           echo "Simulando build de la API Express..."
-          echo "Verificando archivos necesarios..."
-          ls -la
+          node -e "console.log('Build OK para', process.platform, 'con Node', process.version)"
           echo "Build simulado completado."
           echo "----------------------------------------------"
 
+      # Tarea 11 - subir artifact
       - name: 6. Subir Artifact para Despliegue
         uses: actions/upload-artifact@v4
         with:
-          #  nombre único por combinación de SO y Node
+          # nombre único por combinación de SO y versión de Node
           name: web-app-package-${{ matrix.os }}-node-${{ matrix.node-version }}
           path: .
 
@@ -58,7 +59,7 @@ jobs:
           echo "----------------------------------------------"
           echo "CI OK. Iniciando Despliegue a Producción..."
           echo "TOKEN de autenticación utilizado: $DEPLOY_TOKEN_VAR"
-          echo " Aplicación Express desplegada con éxito!"
+          echo "Aplicación Express desplegada con éxito!"
           echo "----------------------------------------------"
         env:
           DEPLOY_TOKEN_VAR: ${{ secrets.FAKE_DEPLOY_TOKEN }}
