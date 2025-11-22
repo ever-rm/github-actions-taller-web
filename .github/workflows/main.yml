@@ -29,16 +29,13 @@ jobs:
       - name: 4. Ejecutar Pruebas de Endpoints (Jest/Supertest)
         run: npm test
 
-      # Build simulado
       - name: 5. Ejecutar Build (Simulado)
         run: |
           echo "----------------------------------------------"
           echo "Simulando build de la API Express..."
           node -e "console.log('Build OK para', process.platform, 'con Node', process.version)"
-          echo "Build simulado completado."
           echo "----------------------------------------------"
 
-      # Subimos SOLO un artifact (ubuntu + Node 20) para usar en el deploy
       - name: 6. Subir Artifact para Despliegue
         if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20'
         uses: actions/upload-artifact@v4
@@ -66,5 +63,5 @@ jobs:
             exit 1
           fi
 
-          echo "Iniciando despliegue a Vercel con artifact prebuild..."
-          npx vercel deploy --prebuilt --yes --token "$VERCEL_TOKEN"
+          echo "Iniciando despliegue a Vercel..."
+          npx vercel deploy --yes --token "$VERCEL_TOKEN"
