@@ -12,50 +12,44 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node: ['18', '20']
+        node-version: ['18', '20']
 
     steps:
       - name: 1. Descargar Código de Express
         uses: actions/checkout@v4
 
-      - name: 2. Configurar Node.js (v${{ matrix.node }})
+      - name: 2. Configurar Node.js (v${{ matrix.node-version }})
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.node-version }}
 
       - name: 3. Instalar Dependencias (npm ci)
         run: npm ci
 
-      - name: 4. Ejecutar Pruebas de Endpoints (Jest/Supertest)
+      - name: 4. Ejecutar Pruebas
         run: npm test
 
-      # Tarea 11/12: Build simulado
-      - name: 5. Ejecutar Build (Simulado)
+      - name: 5. Build Simulado
         run: |
-          echo "----------------------------------------------"
-          echo "Simulando build de la API Express..."
-          node -e "console.log('Build OK para', process.platform, 'con Node', process.version)"
-          echo "Build simulado completado."
-          echo "----------------------------------------------"
+          echo "Build completo en ${{ matrix.os }} Node ${{ matrix.node-version }}"
 
-      # Tarea 11: subir artifact (solo una combinación para evitar conflictos)
-      - name: 6. Subir Artifact para Despliegue
-        if: matrix.os == 'ubuntu-latest' && matrix.node == '20'
+      - name: 6. Subir Artifact (solo build final)
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20'
         uses: actions/upload-artifact@v4
         with:
-          name: web-app-package          # nombre único del artifact que usará el deploy
-          path: .                        # carpeta del proyecto
+          name: web-app-package-ubuntu-latest-node-20
+          path: .
 
   deploy_app:
     runs-on: ubuntu-latest
-    needs: [ci_test_build]              # Tarea 13: depende de CI
+    needs: [ci_test_build]
 
     steps:
       - name: 1. Descargar Artifact
         uses: actions/download-artifact@v4
         with:
-          name: web-app-package          # mismo nombre que en el upload
-          path: .                        # lo descarga en el workspace actual
+          name: web-app-package-ubuntu-latest-node-20
+          path: .
 
-      - name: 2. Despliegue a Vercel
+      - name: 2. Desplegar a Vercel
         run: npx vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
