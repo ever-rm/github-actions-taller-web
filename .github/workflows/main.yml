@@ -1,4 +1,4 @@
-name: CI + CD Express API
+name: CI/CD Express API
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 jobs:
   ci_test_build:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         node-version: ['18', '20']
@@ -32,9 +33,15 @@ jobs:
     needs: [ci_test_build]
 
     steps:
-      - name: 1. Descargar código para despliegue
+      - name: 1. Descargar Código para CD
         uses: actions/checkout@v4
 
-      - name: 2. Simulación de despliegue
-        run: echo "🚀 Despliegue exitoso a producción!"
-
+      - name: 2. Ejecutar Simulación de Despliegue a Producción
+        run: |
+          echo "----------------------------------------------"
+          echo "CI OK. Iniciando Despliegue a Producción..."
+          echo "TOKEN de autenticación utilizado: $DEPLOY_TOKEN_VAR"
+          echo "Aplicación Express desplegada con éxito!"
+          echo "----------------------------------------------"
+        env:
+          DEPLOY_TOKEN_VAR: ${{ secrets.FAKE_DEPLOY_TOKEN }}
