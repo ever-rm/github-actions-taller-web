@@ -41,7 +41,8 @@ jobs:
       - name: 6. Subir Artifact para Despliegue
         uses: actions/upload-artifact@v4
         with:
-          name: web-app-package
+          #  nombre único por combinación de SO y Node
+          name: web-app-package-${{ matrix.os }}-node-${{ matrix.node-version }}
           path: .
 
   deploy_app:
@@ -57,7 +58,7 @@ jobs:
           echo "----------------------------------------------"
           echo "CI OK. Iniciando Despliegue a Producción..."
           echo "TOKEN de autenticación utilizado: $DEPLOY_TOKEN_VAR"
-          echo "Aplicación Express desplegada con éxito!"
+          echo " Aplicación Express desplegada con éxito!"
           echo "----------------------------------------------"
         env:
           DEPLOY_TOKEN_VAR: ${{ secrets.FAKE_DEPLOY_TOKEN }}
