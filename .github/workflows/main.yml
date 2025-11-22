@@ -1,4 +1,4 @@
-name: CI Express API
+name: CI + CD Express API
 
 on:
   push:
@@ -8,10 +8,9 @@ on:
 jobs:
   ci_test_build:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        node-version: ['18', '20']  # Versiones a probar
+        node-version: ['18', '20']
 
     steps:
       - name: 1. Descargar Código de Express
@@ -27,4 +26,15 @@ jobs:
 
       - name: 4. Ejecutar Pruebas de Endpoints (Jest/Supertest)
         run: npm test
+
+  deploy_app:
+    runs-on: ubuntu-latest
+    needs: [ci_test_build]
+
+    steps:
+      - name: 1. Descargar código para despliegue
+        uses: actions/checkout@v4
+
+      - name: 2. Simulación de despliegue
+        run: echo "🚀 Despliegue exitoso a producción!"
 
